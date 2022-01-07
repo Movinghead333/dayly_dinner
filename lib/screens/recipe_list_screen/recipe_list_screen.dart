@@ -1,8 +1,10 @@
 import 'package:dayly_dinner/constants.dart';
 import 'package:dayly_dinner/data_models/recipe.dart';
 import 'package:dayly_dinner/providers/main_data_provider.dart';
+import 'package:dayly_dinner/widgets/confirmation_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:dayly_dinner/utility.dart';
 
 class RecipeListScreen extends StatefulWidget {
   static const String routeName = '/';
@@ -34,8 +36,9 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
                       backgroundColor:
                           MaterialStateProperty.all(Colors.lightBlue),
                     ),
-                    child: Text(kCancel),
+                    child: Text(kAdd),
                     onPressed: () {
+                      print(_textFieldController.text);
                       Navigator.pop(context);
                     },
                   ),
@@ -44,9 +47,8 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
                       backgroundColor:
                           MaterialStateProperty.all(Colors.lightBlue),
                     ),
-                    child: Text(kAdd),
+                    child: Text(kCancel),
                     onPressed: () {
-                      print(_textFieldController.text);
                       Navigator.pop(context);
                     },
                   ),
@@ -67,8 +69,8 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
             itemBuilder: (context, index) {
               return ListTile(
                 title: Text(recipes[index].name),
-                subtitle:
-                    Text('zuletz am: ${recipes[index].lastPreparedToString()}'),
+                subtitle: Text(
+                    '$kLastPreparedOn: ${recipes[index].lastPreparedToString()}'),
                 onTap: () {
                   recipesModel.selectedRecipeIndex = index;
                   showRecipeActionsDialog(
@@ -111,8 +113,26 @@ class _RecipeActionsDialogState extends State<RecipeActionsDialog> {
       children: [
         SimpleDialogButton(
           buttonText: kCookRecipe,
-          onPressed: () {
-            widget.recipesModel.cookCurrentRecipe();
+          onPressed: () async {
+            await showDialog(
+              //TODO: finish delete recipe confirmation dialog
+              context: context,
+              builder: (context) {
+                return ConfirmationDialog(
+                  title: kCookRecipe,
+                  content:
+                      '$kTheLastPreparedDateWillBeSetTo1 ${widget.recipesModel.getCurrentRecipeName()} $kTheLastPreparedDateWillBeSetTo2 ${Utility.getCurrentDateAsString()} $kTheLastPreparedDateWillBeSetTo3.',
+                  onDialogConfirmed: () {
+                    widget.recipesModel.cookCurrentRecipe();
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                  },
+                  onDialogCanceled: () {
+                    Navigator.pop(context);
+                  },
+                );
+              },
+            );
           },
         ),
         SimpleDialogButton(
@@ -194,34 +214,18 @@ class _RecipeActionsDialogState extends State<RecipeActionsDialog> {
               //TODO: finish delete recipe confirmation dialog
               context: context,
               builder: (context) {
-                return AlertDialog(
-                  title: Text(kDeleteRecipe),
-                  content: Text(
-                      '$kTheFollowingRecipeWillBeDeleted: ${widget.recipesModel.getCurrentRecipeName()}'),
-                  actions: <Widget>[
-                    ElevatedButton(
-                      style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStateProperty.all(Colors.lightBlue),
-                      ),
-                      child: Text(kConfirm),
-                      onPressed: () {
-                        widget.recipesModel.deleteCurrentRecipe();
-                        Navigator.pop(context);
-                        Navigator.pop(context);
-                      },
-                    ),
-                    ElevatedButton(
-                      style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStateProperty.all(Colors.lightBlue),
-                      ),
-                      child: Text(kCancel),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                  ],
+                return ConfirmationDialog(
+                  title: kDeleteRecipe,
+                  content:
+                      '$kTheFollowingRecipeWillBeDeleted: ${widget.recipesModel.getCurrentRecipeName()}',
+                  onDialogConfirmed: () {
+                    widget.recipesModel.deleteCurrentRecipe();
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                  },
+                  onDialogCanceled: () {
+                    Navigator.pop(context);
+                  },
                 );
               },
             );

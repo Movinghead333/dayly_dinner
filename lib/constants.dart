@@ -14,6 +14,10 @@ const String kDeleteRecipe = 'Rezept löschen';
 const String kTheFollowingRecipeWillBeDeleted =
     'Folgendes Rezept wird gelöscht';
 const String kCookRecipe = 'Rezept kochen';
+const String kTheLastPreparedDateWillBeSetTo1 =
+    'Die letzte Zubereitung des Rezepts';
+const String kTheLastPreparedDateWillBeSetTo2 = 'wird auf den';
+const String kTheLastPreparedDateWillBeSetTo3 = 'gesetzt';
 const String kEditRecipe = 'Rezept bearbeiten';
 const String kConfirm = 'Bestätigen';
 const String kLastPreparedOn = 'zuletzt am';
