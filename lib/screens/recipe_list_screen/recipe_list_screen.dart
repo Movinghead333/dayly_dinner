@@ -32,10 +32,6 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
                 ),
                 actions: <Widget>[
                   ElevatedButton(
-                    style: ButtonStyle(
-                      backgroundColor:
-                          MaterialStateProperty.all(Colors.lightBlue),
-                    ),
                     child: Text(kAdd),
                     onPressed: () {
                       print(_textFieldController.text);
@@ -43,10 +39,6 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
                     },
                   ),
                   ElevatedButton(
-                    style: ButtonStyle(
-                      backgroundColor:
-                          MaterialStateProperty.all(Colors.lightBlue),
-                    ),
                     child: Text(kCancel),
                     onPressed: () {
                       Navigator.pop(context);
@@ -67,15 +59,21 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
           return ListView.builder(
             itemCount: recipes.length,
             itemBuilder: (context, index) {
-              return ListTile(
-                title: Text(recipes[index].name),
-                subtitle: Text(
-                    '$kLastPreparedOn: ${recipes[index].lastPreparedToString()}'),
-                onTap: () {
-                  recipesModel.selectedRecipeIndex = index;
-                  showRecipeActionsDialog(
-                      context: context, recipesModel: recipesModel);
-                },
+              return Container(
+                margin: EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                    color: Theme.of(context).colorScheme.surface),
+                child: ListTile(
+                  title: Text(recipes[index].name),
+                  subtitle: Text(
+                      '$kLastPreparedOn: ${recipes[index].lastPreparedToString()}'),
+                  onTap: () {
+                    recipesModel.selectedRecipeIndex = index;
+                    showRecipeActionsDialog(
+                        context: context, recipesModel: recipesModel);
+                  },
+                ),
               );
             },
           );
@@ -115,7 +113,6 @@ class _RecipeActionsDialogState extends State<RecipeActionsDialog> {
           buttonText: kCookRecipe,
           onPressed: () async {
             await showDialog(
-              //TODO: finish delete recipe confirmation dialog
               context: context,
               builder: (context) {
                 return ConfirmationDialog(
@@ -174,10 +171,6 @@ class _RecipeActionsDialogState extends State<RecipeActionsDialog> {
                     ButtonBar(
                       children: [
                         ElevatedButton(
-                          style: ButtonStyle(
-                            backgroundColor:
-                                MaterialStateProperty.all(Colors.lightBlue),
-                          ),
                           onPressed: () {
                             if (widget.recipesModel.updateCurrentRecipe(
                                 recipeNameController.text,
@@ -189,10 +182,6 @@ class _RecipeActionsDialogState extends State<RecipeActionsDialog> {
                           child: Text(kConfirm),
                         ),
                         ElevatedButton(
-                          style: ButtonStyle(
-                            backgroundColor:
-                                MaterialStateProperty.all(Colors.lightBlue),
-                          ),
                           onPressed: () {
                             Navigator.pop(context);
                           },
@@ -251,14 +240,8 @@ class SimpleDialogButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all(Colors.lightBlue),
-      ),
       child: Text(
         buttonText,
-        style: TextStyle(
-          color: Colors.white,
-        ),
       ),
       onPressed: onPressed,
     );

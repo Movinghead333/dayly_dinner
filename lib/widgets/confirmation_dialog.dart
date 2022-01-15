@@ -20,16 +20,8 @@ class ConfirmationDialog extends StatelessWidget {
       title: Text(title),
       content: Text(content),
       actions: <Widget>[
+        ElevatedButton(child: Text(kConfirm), onPressed: onDialogConfirmed),
         ElevatedButton(
-            style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all(Colors.lightBlue),
-            ),
-            child: Text(kConfirm),
-            onPressed: onDialogConfirmed),
-        ElevatedButton(
-          style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all(Colors.lightBlue),
-          ),
           child: Text(kCancel),
           onPressed: onDialogCanceled,
         ),

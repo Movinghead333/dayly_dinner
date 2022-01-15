@@ -1,6 +1,7 @@
 import 'package:dayly_dinner/services/database_service/database_queries.dart';
 import 'package:dayly_dinner/services/database_service/ingredient_repository.dart';
 import 'package:dayly_dinner/services/database_service/recipe_repository.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -28,6 +29,7 @@ class DatabaseService {
       join(await getDatabasesPath(), 'dayly_dinner_database.db'),
       // When the database is first created, create a table to store dogs.
       onCreate: (db, version) async {
+        debugPrint('Running db oncreate');
         // Run the CREATE TABLE statement on the database.
         await db.execute(createRecipesTableQuery);
         await db.execute(createIngredientsTableQuery);
