@@ -23,12 +23,11 @@ class MainDataProvider extends ChangeNotifier {
   /// Load recipes from json-encoded string in flutter-secure-storage
   void _loadRecipes() async {
     debugPrint('${DateTime.now().toString()} loading recipes');
-    Services.databaseService.recipeRepo.getAllRecipes().then((value) {
-      this._recipes = value;
-      _recipes.sort();
-      notifyListeners();
-      debugPrint('${DateTime.now().toString()} loading recipes done');
-    });
+
+    this._recipes = await Services.databaseService.recipeRepo.getAllRecipes();
+    _recipes.sort();
+    notifyListeners();
+    debugPrint('${DateTime.now().toString()} loading recipes done');
   }
 
   /// Add a recipe based on the passed recipeName and add along with the current

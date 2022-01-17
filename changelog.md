@@ -1,5 +1,9 @@
 # Changelog:
 
+## Commit 4:
+- Revoked changes to the asyncronous loading of recipes these have to be dealt with by futurebuilder in future
+- Added seeddata
+
 ## Commit 3:
 - Added a dark theme as default theme to the app.
 - Minor development on UI of `RecipeListScreen`
