@@ -1,4 +1,3 @@
-import 'package:dayly_dinner/constants.dart';
 import 'package:dayly_dinner/providers/main_data_provider.dart';
 import 'package:dayly_dinner/screens/main_screen/main_screen.dart';
 import 'package:dayly_dinner/services/database_service/database_service.dart';

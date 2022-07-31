@@ -2,6 +2,7 @@ import 'package:dayly_dinner/constants.dart';
 import 'package:dayly_dinner/data_models/recipe.dart';
 import 'package:dayly_dinner/providers/main_data_provider.dart';
 import 'package:dayly_dinner/widgets/confirmation_dialog.dart';
+import 'package:dayly_dinner/widgets/recipe_add_or_edit_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dayly_dinner/utility.dart';
@@ -14,71 +15,94 @@ class RecipeListScreen extends StatefulWidget {
 }
 
 class _RecipeListScreenState extends State<RecipeListScreen> {
+  TextEditingController recipeSearchController = TextEditingController();
+
+  List<Recipe> shownRecipes = [];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () async {
-          TextEditingController _textFieldController = TextEditingController();
+          DateTime now = DateTime.now();
+          TextEditingController recipeNameTEC = TextEditingController();
+          TextEditingController lastPreparedTEC = TextEditingController();
+          lastPreparedTEC.text = Utility.parseDateTimeToGerDateString(now);
           await showDialog(
             context: context,
             builder: (context) {
-              return AlertDialog(
-                title: Text(kAddRecipe),
-                content: TextField(
-                  controller: _textFieldController,
-                  decoration: InputDecoration(hintText: kRecipeName),
-                ),
-                actions: <Widget>[
-                  ElevatedButton(
-                    child: Text(kAdd),
-                    onPressed: () {
-                      print(_textFieldController.text);
-                      Navigator.pop(context);
-                    },
-                  ),
-                  ElevatedButton(
-                    child: Text(kCancel),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
+              return RecipeAddOrEditDialog(
+                title: kAddRecipe,
+                recipeNameTEC: recipeNameTEC,
+                lastPreparedTEC: lastPreparedTEC,
+                onConfirm: () {
+                  String newRecipeName = recipeNameTEC.text;
+                  String lastPreparedString = lastPreparedTEC.text;
+                  bool addingRecipeSuccessful =
+                      Provider.of<MainDataProvider>(context, listen: false)
+                          .addRecipe(newRecipeName, lastPreparedString);
+
+                  if (addingRecipeSuccessful) {
+                    Navigator.pop(context);
+                  }
+                },
+                onCancel: () {
+                  Navigator.pop(context);
+                },
               );
             },
           );
-          String newRecipeName = _textFieldController.text;
-          Provider.of<MainDataProvider>(context, listen: false)
-              .addRecipe(newRecipeName);
         },
       ),
       body: Consumer<MainDataProvider>(
         builder: (context, recipesModel, child) {
-          List<Recipe> recipes = recipesModel.recipes;
-          return ListView.builder(
-            itemCount: recipes.length,
-            itemBuilder: (context, index) {
-              return Container(
-                margin: EdgeInsets.all(5),
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(20)),
-                    color: Theme.of(context).colorScheme.surface),
-                child: ListTile(
-                  title: Text(recipes[index].name),
-                  subtitle: Text(
-                      '$kLastPreparedOn: ${recipes[index].lastPreparedToString()}'),
-                  onTap: () {
-                    recipesModel.selectedRecipeIndex = index;
-                    showRecipeActionsDialog(
-                        context: context, recipesModel: recipesModel);
+          return Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
+                child: TextField(
+                  onChanged: (String value) {
+                    print('change');
+                    Provider.of<MainDataProvider>(context, listen: false)
+                        .setRecipeSearchQuery(value);
                   },
+                  controller: recipeSearchController,
+                  decoration: InputDecoration(hintText: kSearchRecipe),
                 ),
-              );
-            },
+              ),
+              Expanded(
+                child: _buildRecipesList(recipesModel),
+              ),
+            ],
           );
         },
       ),
+    );
+  }
+
+  Widget _buildRecipesList(MainDataProvider recipesModel) {
+    List<Recipe> recipes = recipesModel.filteredRecipes;
+    return ListView.builder(
+      itemCount: recipes.length,
+      itemBuilder: (context, index) {
+        return Container(
+          margin: EdgeInsets.all(5),
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(20)),
+              color: Theme.of(context).colorScheme.surface),
+          child: ListTile(
+            title: Text(recipes[index].name),
+            subtitle: Text(
+                '$kLastPreparedOn: ${recipes[index].lastPreparedToString()}'),
+            onTap: () {
+              recipesModel.selectedRecipeIndex = index;
+              showRecipeActionsDialog(
+                  context: context, recipesModel: recipesModel);
+            },
+          ),
+        );
+      },
     );
   }
 
@@ -146,54 +170,24 @@ class _RecipeActionsDialogState extends State<RecipeActionsDialog> {
             await showDialog(
               context: context,
               builder: (context) {
-                return SimpleDialog(
-                  title: Text(kEditRecipe),
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.all(10),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('$kRecipeName:'),
-                          TextField(
-                            controller: recipeNameController,
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          Text('$kLastPreparedOn:'),
-                          TextField(
-                            controller: lastPreparedController,
-                          ),
-                        ],
-                      ),
-                    ),
-                    ButtonBar(
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            if (widget.recipesModel.updateCurrentRecipe(
-                                recipeNameController.text,
-                                lastPreparedController.text)) {
-                              Navigator.pop(context);
-                              Navigator.pop(context);
-                            }
-                          },
-                          child: Text(kConfirm),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: Text(kCancel),
-                        ),
-                      ],
-                    )
-                  ],
+                return RecipeAddOrEditDialog(
+                  title: kEditRecipe,
+                  recipeNameTEC: recipeNameController,
+                  lastPreparedTEC: lastPreparedController,
+                  onConfirm: () {
+                    if (widget.recipesModel.updateCurrentRecipe(
+                        recipeNameController.text,
+                        lastPreparedController.text)) {
+                      Navigator.pop(context);
+                      Navigator.pop(context);
+                    }
+                  },
+                  onCancel: () {
+                    Navigator.pop(context);
+                  },
                 );
               },
             );
-            //setState(() {});
           },
         ),
         SimpleDialogButton(
