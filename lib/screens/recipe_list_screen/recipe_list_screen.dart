@@ -96,7 +96,7 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
             subtitle: Text(
                 '$kLastPreparedOn: ${recipes[index].lastPreparedToString()}'),
             onTap: () {
-              recipesModel.selectedRecipeIndex = index;
+              recipesModel.setSelectedRecipe = recipes[index];
               showRecipeActionsDialog(
                   context: context, recipesModel: recipesModel);
             },

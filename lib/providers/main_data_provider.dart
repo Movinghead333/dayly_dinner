@@ -1,6 +1,5 @@
 import 'package:dayly_dinner/constants.dart';
 import 'package:dayly_dinner/data_models/recipe.dart';
-import 'package:dayly_dinner/screens/recipe_list_screen/recipe_list_screen.dart';
 import 'package:dayly_dinner/services/services.dart';
 import 'package:dayly_dinner/utility.dart';
 import 'package:flutter/cupertino.dart';
@@ -25,8 +24,10 @@ class MainDataProvider extends ChangeNotifier {
 
   final FlutterSecureStorage storage = FlutterSecureStorage();
 
-  /// Index of the recipe which has been selected most recently.
-  int selectedRecipeIndex = -1;
+  /// Reference to the most recently selected [Recipe].
+  Recipe? _selectedRecipe;
+
+  set setSelectedRecipe(Recipe recipe) => _selectedRecipe = recipe;
 
   /// Initializes the RecipesModel by loading recipes from database
   MainDataProvider() {
@@ -85,30 +86,28 @@ class MainDataProvider extends ChangeNotifier {
   }
 
   String getCurrentRecipeName() {
-    return _recipes[selectedRecipeIndex].name;
+    return _selectedRecipe?.name ?? 'Kein Rezept ausgewählt';
   }
 
   String getCurrentRecipeLastPreparedToString() {
-    return _recipes[selectedRecipeIndex].lastPreparedToString();
+    return _selectedRecipe?.lastPreparedToString() ?? '-';
   }
 
   void deleteCurrentRecipe() {
-    Recipe removedRecipe = _recipes.removeAt(selectedRecipeIndex);
-    Services.databaseService.recipeRepo.deleteRecipe(removedRecipe.id);
-    selectedRecipeIndex = -1;
+    _recipes.remove(_selectedRecipe!);
+    Services.databaseService.recipeRepo.deleteRecipe(_selectedRecipe!.id);
     notifyListeners();
   }
 
   void cookCurrentRecipe() {
-    Recipe updatedRecipe = _recipes[selectedRecipeIndex];
-    updatedRecipe.lastPrepared = DateTime.now();
-    Services.databaseService.recipeRepo.updateRecipe(updatedRecipe);
+    _selectedRecipe!.lastPrepared = DateTime.now();
+    Services.databaseService.recipeRepo.updateRecipe(_selectedRecipe!);
     _recipes.sort();
     notifyListeners();
   }
 
   bool updateCurrentRecipe(String? updatedRecipeName, String? newDate) {
-    Recipe currentRecipe = _recipes[selectedRecipeIndex];
+    Recipe currentRecipe = _selectedRecipe!;
 
     if (updatedRecipeName != null &&
         newDate != null &&
