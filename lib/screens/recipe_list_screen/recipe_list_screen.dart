@@ -111,16 +111,14 @@ class _RecipeListScreenState extends State<RecipeListScreen> {
     showDialog(
       context: context,
       builder: (context) {
-        return RecipeActionsDialog(recipesModel: recipesModel);
+        return RecipeActionsDialog();
       },
     );
   }
 }
 
 class RecipeActionsDialog extends StatefulWidget {
-  final MainDataProvider recipesModel;
-
-  RecipeActionsDialog({required this.recipesModel});
+  RecipeActionsDialog();
 
   @override
   _RecipeActionsDialogState createState() => _RecipeActionsDialogState();
@@ -129,9 +127,10 @@ class RecipeActionsDialog extends StatefulWidget {
 class _RecipeActionsDialogState extends State<RecipeActionsDialog> {
   @override
   Widget build(BuildContext context) {
+    MainDataProvider recipesModel = context.read<MainDataProvider>();
     return SimpleDialog(
       contentPadding: EdgeInsets.all(10),
-      title: Text(widget.recipesModel.getCurrentRecipeName()),
+      title: Text(recipesModel.getCurrentRecipeName()),
       children: [
         SimpleDialogButton(
           buttonText: kCookRecipe,
@@ -142,9 +141,9 @@ class _RecipeActionsDialogState extends State<RecipeActionsDialog> {
                 return ConfirmationDialog(
                   title: kCookRecipe,
                   content:
-                      '$kTheLastPreparedDateWillBeSetTo1 ${widget.recipesModel.getCurrentRecipeName()} $kTheLastPreparedDateWillBeSetTo2 ${Utility.getCurrentDateAsString()} $kTheLastPreparedDateWillBeSetTo3.',
+                      '$kTheLastPreparedDateWillBeSetTo1 ${recipesModel.getCurrentRecipeName()} $kTheLastPreparedDateWillBeSetTo2 ${Utility.getCurrentDateAsString()} $kTheLastPreparedDateWillBeSetTo3.',
                   onDialogConfirmed: () {
-                    widget.recipesModel.cookCurrentRecipe();
+                    recipesModel.cookCurrentRecipe();
                     Navigator.pop(context);
                     Navigator.pop(context);
                   },
@@ -161,12 +160,11 @@ class _RecipeActionsDialogState extends State<RecipeActionsDialog> {
           onPressed: () async {
             TextEditingController recipeNameController =
                 TextEditingController();
-            recipeNameController.text =
-                widget.recipesModel.getCurrentRecipeName();
+            recipeNameController.text = recipesModel.getCurrentRecipeName();
             TextEditingController lastPreparedController =
                 TextEditingController();
             lastPreparedController.text =
-                widget.recipesModel.getCurrentRecipeLastPreparedToString();
+                recipesModel.getCurrentRecipeLastPreparedToString();
             await showDialog(
               context: context,
               builder: (context) {
@@ -175,7 +173,7 @@ class _RecipeActionsDialogState extends State<RecipeActionsDialog> {
                   recipeNameTEC: recipeNameController,
                   lastPreparedTEC: lastPreparedController,
                   onConfirm: () {
-                    if (widget.recipesModel.updateCurrentRecipe(
+                    if (recipesModel.updateCurrentRecipe(
                         recipeNameController.text,
                         lastPreparedController.text)) {
                       Navigator.pop(context);
@@ -200,9 +198,9 @@ class _RecipeActionsDialogState extends State<RecipeActionsDialog> {
                 return ConfirmationDialog(
                   title: kDeleteRecipe,
                   content:
-                      '$kTheFollowingRecipeWillBeDeleted: ${widget.recipesModel.getCurrentRecipeName()}',
+                      '$kTheFollowingRecipeWillBeDeleted: ${recipesModel.getCurrentRecipeName()}',
                   onDialogConfirmed: () {
-                    widget.recipesModel.deleteCurrentRecipe();
+                    recipesModel.deleteCurrentRecipe();
                     Navigator.pop(context);
                     Navigator.pop(context);
                   },
